@@ -22,17 +22,20 @@ export default function ImageWithFallback({
   
   const fallbackSrc = '/placeholder-logo.svg';
   
+  // Handle empty src values by treating them as errors
+  const shouldUseFallback = error || !src || src.trim() === '';
+  
   return (
     <div className={`relative ${className}`}>
       <Image
-        src={error ? fallbackSrc : src}
+        src={shouldUseFallback ? fallbackSrc : src}
         alt={alt}
         width={width}
         height={height}
         className="object-contain"
         onError={() => setError(true)}
       />
-      {error && (
+      {shouldUseFallback && (
         <div className="absolute inset-0 flex items-center justify-center text-xs text-center p-1">
           {alt}
         </div>

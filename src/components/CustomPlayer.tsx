@@ -33,6 +33,15 @@ export default function CustomPlayer({ url, onReady, onError }: CustomPlayerProp
     }
   }, [onReady, onError]);
   
+  // Don't render the video element if URL is empty
+  if (!url || url.trim() === '') {
+    return (
+      <div className="w-full h-full bg-black flex items-center justify-center text-white">
+        <p>No video source available</p>
+      </div>
+    );
+  }
+  
   return (
     <div className="w-full h-full bg-black flex items-center justify-center">
       <video 
