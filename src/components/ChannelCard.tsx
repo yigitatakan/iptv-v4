@@ -19,7 +19,8 @@ export default function ChannelCard({
   onToggleWatchlist,
   isInWatchlist,
 }: ChannelCardProps) {
-  const [isHovered, setIsHovered] = useState(false);
+  // State to track hover status for styling (if needed in the future)
+  const [_, setIsHovered] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const previewTimerRef = useRef<NodeJS.Timeout | null>(null);
   

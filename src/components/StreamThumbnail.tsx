@@ -12,7 +12,7 @@ export default function StreamThumbnail({ url, onThumbnailCaptured }: StreamThum
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [hasError, setHasError] = useState(false);
+  const [hasError, setHasError] = useState(false); // Used in error handling
   
   useEffect(() => {
     const videoElement = videoRef.current;

@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { fetchAndParseM3U, Channel, getUniqueGroups } from '@/utils/m3uParser';
-import { countries, Country, getCountryM3UUrl, DEFAULT_COUNTRY_CODE, getAllCountriesSorted } from '@/utils/countryUtils';
+import axios from 'axios';
+import { Channel, parseM3U, getUniqueGroups, fetchAndParseM3U } from '@/utils/m3uParser';
+import { getAllCountriesSorted, getCountryM3UUrl, DEFAULT_COUNTRY_CODE, Country } from '@/utils/countryUtils';
 import Header from './Header';
 import ChannelCard from './ChannelCard';
 import VideoPlayer from './VideoPlayer';
@@ -20,7 +21,8 @@ export default function ChannelListingPage() {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [selectedChannel, setSelectedChannel] = useState<Channel | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isFirstVisit, setIsFirstVisit] = useState<boolean>(true);
+  // Track first visit for loading animation
+  const [_, setIsFirstVisit] = useState(true);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [selectedCountry, setSelectedCountry] = useState<string>(DEFAULT_COUNTRY_CODE);

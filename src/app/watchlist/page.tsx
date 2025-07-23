@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Channel } from '@/utils/m3uParser';
 import Header from '@/components/Header';
@@ -88,9 +89,9 @@ export default function WatchlistPage() {
           <div className="neo-card text-center py-12">
             <h3 className="text-xl font-bold mb-2">Your watchlist is empty</h3>
             <p className="mb-6">Add channels to your watchlist from the main page</p>
-            <a href="/" className="neo-button bg-blue-500 text-white">
-              Browse Channels
-            </a>
+            <Link href="/" className="text-blue-500 hover:underline">
+              Go back to all channels
+            </Link>
           </div>
         )}
         

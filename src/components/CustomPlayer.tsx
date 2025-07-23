@@ -7,7 +7,7 @@ import Hls from 'hls.js';
 interface CustomPlayerProps {
   url: string;
   onReady?: () => void;
-  onError?: () => void;
+  onError?: (message?: string) => void;
 }
 
 export default function CustomPlayer({ url, onReady, onError }: CustomPlayerProps) {
@@ -17,17 +17,19 @@ export default function CustomPlayer({ url, onReady, onError }: CustomPlayerProp
   const [isLoading, setIsLoading] = useState(true);
   
   // Don't render the player if URL is empty
-  if (!url || url.trim() === '') {
-    return (
-      <div className="w-full h-full bg-black flex items-center justify-center text-white">
-        <p>No video source available</p>
-      </div>
-    );
-  }
+  // Prepare empty state UI
+  const emptySourceUI = (
+    <div className="w-full h-full bg-black flex items-center justify-center text-white">
+      <p>No video source available</p>
+    </div>
+  );
   
   useEffect(() => {
     const videoElement = videoRef.current;
-    if (!videoElement) return;
+    // Early return if video element is not available or URL is empty
+    if (!videoElement || !url || url.trim() === '') {
+      return;
+    }
     
     // Initialize HLS instance reference
     let hlsInstance: Hls | null = null;
@@ -38,20 +40,18 @@ export default function CustomPlayer({ url, onReady, onError }: CustomPlayerProp
     };
     
     const handleError = (message = '') => {
-      console.error('Video error for URL:', url, message ? `- ${message}` : '');
+      console.error(`Video playback error: ${message}`);
       setHasError(true);
-      setErrorMessage(message || 'Unable to play this stream');
       setIsLoading(false);
-      if (onError) onError();
+      if (onError) onError(message);
     };
     
     // Separate handler for video element error events
     const handleVideoError = () => {
       console.error('HTML5 video error for URL:', url);
       setHasError(true);
-      setErrorMessage('Unable to play this stream');
       setIsLoading(false);
-      if (onError) onError();
+      if (onError) onError('Unable to play this stream');
     };
     
     const handleWaiting = () => {
@@ -101,7 +101,7 @@ export default function CustomPlayer({ url, onReady, onError }: CustomPlayerProp
               if (data.details === Hls.ErrorDetails.MANIFEST_LOAD_ERROR ||
                   data.details === Hls.ErrorDetails.MANIFEST_LOAD_TIMEOUT) {
                 // Check if it's a DNS resolution error
-                if (data.response && (data.response as any).code === 'ERR_NAME_NOT_RESOLVED') {
+                if (data.response && typeof data.response === 'object' && 'code' in data.response) {
                   handleError('Stream source unavailable (DNS error)');
                   return;
                 }
@@ -160,7 +160,7 @@ export default function CustomPlayer({ url, onReady, onError }: CustomPlayerProp
         hlsInstance.destroy();
       }
     };
-  }, [url, onReady, onError]);
+  }, [url, onReady, onError, hasError]);
   
   const handleRetry = () => {
     setHasError(false);
@@ -172,37 +172,34 @@ export default function CustomPlayer({ url, onReady, onError }: CustomPlayerProp
     }
   };
   
+  // Return empty UI if URL is empty
+  if (!url || url.trim() === '') {
+    return emptySourceUI;
+  }
+  
   return (
-    <div className="w-full h-full bg-black flex items-center justify-center">
-      {hasError ? (
-        <div className="text-white text-center p-4">
-          <p className="mb-2">{errorMessage || 'Unable to play this stream'}</p>
-          <p className="text-sm opacity-70">
-            {errorMessage ? 'Please try another channel' : 'The stream might be offline or in an unsupported format'}
-          </p>
-          <button 
-            onClick={handleRetry}
-            className="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded border-2 border-black"
-          >
-            Try Again
-          </button>
+    <div className="relative w-full h-full bg-black">
+      <video 
+        ref={videoRef}
+        className="w-full h-full" 
+        controls
+        playsInline
+      />
+      
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
         </div>
-      ) : (
-        <>
-          {isLoading && (
-            <div className="absolute inset-0 flex items-center justify-center z-10 bg-black bg-opacity-70">
-              <div className="w-12 h-12 border-4 border-t-blue-500 border-black rounded-full animate-spin"></div>
-            </div>
-          )}
-          
-          <video 
-            ref={videoRef}
-            className="w-full h-full" 
-            controls 
-            autoPlay
-            playsInline
-          />
-        </>
+      )}
+      
+      {hasError && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-80 text-white text-center p-4">
+          <div>
+            <div className="text-red-500 text-5xl mb-4">⚠️</div>
+            <h3 className="text-xl font-bold mb-2">Playback Error</h3>
+            <p>Unable to play this stream. It may be offline or in an unsupported format.</p>
+          </div>
+        </div>
       )}
     </div>
   );
