@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import ImageWithFallback from './ImageWithFallback';
+import HoverPreviewPlayer from './HoverPreviewPlayer';
 import { Channel } from '@/utils/m3uParser';
 
 interface ChannelCardProps {
@@ -19,6 +20,30 @@ export default function ChannelCard({
   isInWatchlist,
 }: ChannelCardProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const previewTimerRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Handle mouse enter with minimal delay for preview
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+    
+    // Set a timer to show the preview with minimal delay (100ms)
+    previewTimerRef.current = setTimeout(() => {
+      setShowPreview(true);
+    }, 100);
+  };
+  
+  // Handle mouse leave
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    setShowPreview(false);
+    
+    // Clear the timer if it exists
+    if (previewTimerRef.current) {
+      clearTimeout(previewTimerRef.current);
+      previewTimerRef.current = null;
+    }
+  };
   
   return (
     <motion.div
@@ -27,17 +52,25 @@ export default function ChannelCard({
         y: -5,
         boxShadow: '12px 12px 0px 0px rgba(0,0,0,1)',
       }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       <div className="flex flex-col h-full">
-        <div className="relative w-full h-32 mb-3 bg-gray-100 border-2 border-black">
+        <div className="relative w-full h-32 mb-3 bg-gray-100 border-2 border-black overflow-hidden">
+          {/* Show preview player when hovering */}
+          <HoverPreviewPlayer 
+            url={channel.url} 
+            isVisible={showPreview} 
+          />
+          
+          {/* Always show logo, will be hidden by preview when active */}
           <ImageWithFallback
             src={channel.logo}
             alt={channel.name}
             width={120}
             height={120}
             className="w-full h-full"
+            streamUrl={channel.url} // Pass the stream URL for thumbnail generation
           />
         </div>
         

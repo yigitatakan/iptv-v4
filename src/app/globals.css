@@ -40,7 +40,9 @@
   }
   
   .neo-button {
-    @apply font-bold py-2 px-4 border-4 border-black;
+    font-weight: bold;
+    padding: 0.5rem 1rem;
+    border: 4px solid black;
     box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
     transition: all 0.2s ease;
   }
@@ -55,7 +57,9 @@
   }
   
   .neo-card {
-    @apply bg-white p-4 border-4 border-black;
+    background-color: white;
+    padding: 1rem;
+    border: 4px solid black;
     box-shadow: 8px 8px 0px 0px rgba(0, 0, 0, 1);
     transition: all 0.2s ease;
   }
@@ -66,12 +70,17 @@
   }
   
   .neo-input {
-    @apply border-4 border-black py-2 px-4 bg-white;
+    border: 4px solid black;
+    padding: 0.5rem 1rem;
+    background-color: white;
     box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
   }
   
   .neo-select {
-    @apply border-4 border-black py-2 px-4 bg-white appearance-none;
+    border: 4px solid black;
+    padding: 0.5rem 1rem;
+    background-color: white;
+    appearance: none;
     box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
   }
 }
